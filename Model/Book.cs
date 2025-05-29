@@ -10,6 +10,5 @@
         public int AvailableCopies { get; set; }
         public List<Loan> Loans { get; set; } = [];
 
-   
     }
 }
