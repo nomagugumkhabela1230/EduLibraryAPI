@@ -1,15 +1,15 @@
 ﻿using AutoMapper;
 using LibraryAPI.DTOs.BookDTOs;
-using LibraryAPI.Services.Interfaces;
+using LibraryAPI.Repositories.Interface;
 
-namespace LibraryAPI.Services.Implementations
+namespace LibraryAPI
 {
-    public class BookService: IBookService
+    public class BookService: IBookRepository
     {
-        private readonly IBookService _bookService;
+        private readonly IBookRepository _bookService;
         private readonly IMapper _mapper;
 
-        public BookService(IBookService bookService, IMapper mapper)
+        public BookService(IBookRepository bookService, IMapper mapper)
         {
             _bookService = bookService;
             _mapper = mapper;
