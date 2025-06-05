@@ -1,0 +1,1 @@
+The EduLibrary is a library management system  that is a standalone web-based system. It will include frontend (Angular) and backend (ASP.NET Core Web API) components with a relational database ( SQL Server).
