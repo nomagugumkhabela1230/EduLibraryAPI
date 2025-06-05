@@ -35,6 +35,21 @@ namespace LibraryAPI.Services.Implementation
             await _bookRepository.SaveChangesAsync();
         }
 
+
+
+        public async Task<bool> UpdateBookAsync(BookViewDto bookViewDto)
+        {
+            var existingBook = await _bookRepository.GetBookByIdAsync(bookViewDto.Id);
+            if (existingBook == null)
+                return false;
+            _mapper.Map(bookViewDto, existingBook);
+
+            _bookRepository.UpdateBook(existingBook);
+            await _bookRepository.SaveChangesAsync();
+
+            return true;
+        }
+
         public async Task<bool> DeleteBookAsync(int id)
         {
             var book = await _bookRepository.GetBookByIdAsync(id);
@@ -49,6 +64,5 @@ namespace LibraryAPI.Services.Implementation
             }
         }
 
-       
     }
 }
