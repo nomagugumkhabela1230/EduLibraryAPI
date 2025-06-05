@@ -1,38 +1,62 @@
 using LibraryAPI.Data;
 using LibraryAPI.Models;
-using LibraryAPI.Services;
-
+using LibraryAPI.Repositories.Implementation;
+using LibraryAPI.Repositories.Interface;
+using LibraryAPI.Services.Implementation;
+using LibraryAPI.Services.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+// Add DbContext
 builder.Services.AddDbContext<LibraryDbContext>(options =>
- options.UseSqlServer(builder.Configuration.GetConnectionString("EduLibraryConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("EduLibraryConnection")));
 
-// configure Identity
+// Add Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<LibraryDbContext>();
+    .AddEntityFrameworkStores<LibraryDbContext>()
+    .AddDefaultTokenProviders();
 
+// Add AutoMapper
+builder.Services.AddAutoMapper(typeof(Program));
 
-// Add services to the container.
-builder.Services.AddScoped<JwtService>();
+// Register Repositories
+builder.Services.AddScoped<IBookRepository, BookRepository>();
+/*builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+builder.Services.AddScoped<ILoanRepository, LoanRepository>();
+builder.Services.AddScoped<IFineRepository, FineRepository>();*/
 
+// Register Services
+builder.Services.AddScoped<IBookService, BookService>();
+/*builder.Services.AddScoped<IMemberService, MemberService>();
+builder.Services.AddScoped<ILoanService, LoanService>();
+builder.Services.AddScoped<IFineService, FineService>();
+builder.Services.AddScoped<IJwtService, JwtService>();*/
 
+// Add Controllers
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
+// Add Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Library Management API",
+        Version = "v1"
+    });
+});
+
+
+// JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 
-// authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -46,19 +70,15 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
 
-
-
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

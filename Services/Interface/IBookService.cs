@@ -7,7 +7,9 @@ namespace LibraryAPI.Services.Interface
         Task<List<BookViewDto>> GetAllBooksAsync();
         Task<BookViewDto?> GetBookByIdAsync(int id);
         Task AddBookAsync(BookViewDto bookViewDto);
-        Task<bool> DeleteBookAsync(int id);
+        Task<bool> UpdateBookAsync(BookViewDto bookViewDto);
 
+        Task<bool> DeleteBookAsync(int id);
+        
     }
 }
