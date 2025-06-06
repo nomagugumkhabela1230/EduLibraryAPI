@@ -16,30 +16,39 @@ namespace LibraryAPI.Repositories.Implementation
 
         public async Task<List<Book>> GetAllBooksAsync()
         {
-           return await _context.Books.ToListAsync();
+
+            return await _context.Books.ToListAsync();
         }
 
-        public async Task<Book?> GetBookByIdAsync(int id)
+        public async Task<Book?> GetByIdAsync(int id)
         {
-           return await _context.Books.FindAsync(id);
+            return await _context.Books.FindAsync(id);
         }
-        public async Task AddBookAsync(Book book)
+        public async Task<Book> AddBookAsync(Book book)
         {
-            await _context.Books.AddAsync(book);
+            _context.Books.Add(book);
+            await _context.SaveChangesAsync();
+            return book;
         }
 
-        public void UpdateBook(Book book)
+        public async Task<Book?> UpdateBookAsync( Book book)
         {
-            _context.Books.Update(book);
+            var existing = await _context.Books.FindAsync(book.Id);
+            if (existing == null) return null;
+
+            _context.Entry(existing).CurrentValues.SetValues(book);
+            await _context.SaveChangesAsync();
+            return existing;
         }
-        public void DeleteBook(Book book)
+        public async Task<bool> DeleteBookAsync(int id)
         {
+            var book = await _context.Books.FindAsync(id);
+            if (book == null) return false;
+
             _context.Books.Remove(book);
+            await _context.SaveChangesAsync();
+            return true;
         }
-
-        public async Task SaveChangesAsync()
-        {
-           await _context.SaveChangesAsync();
-        }
+       
     }
 }

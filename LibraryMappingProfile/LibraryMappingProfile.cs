@@ -12,11 +12,11 @@ namespace LibraryAPI.LibraryMappingProfile
     {
         public LibraryMappingProfile()
         {
-            CreateMap<Book, BookViewDto>().ReverseMap();
-            CreateMap<BookCreateDto, Book>()
+            CreateMap<Book, BookDto>().ReverseMap();
+            CreateMap<CreateBookDto, Book>()
                 .ForMember(dest => dest.AvailableCopies, opt => opt.MapFrom(src => src.TotalCopies))
                 .ReverseMap();
-            CreateMap<BookUpdateDto, Book>().ReverseMap();
+         
 
             CreateMap<Member, MemberViewDto>().ReverseMap();
             CreateMap<MemberCreateDto, Member>().ReverseMap();

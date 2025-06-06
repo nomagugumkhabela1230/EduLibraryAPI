@@ -1,6 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using AutoMapper;
+using LibraryAPI.DTOs;
 using LibraryAPI.DTOs.BookDTOs;
 using LibraryAPI.Models;
+using LibraryAPI.Repositories;
 using LibraryAPI.Repositories.Interface;
 using LibraryAPI.Services.Interface;
 
@@ -8,61 +13,46 @@ namespace LibraryAPI.Services.Implementation
 {
     public class BookService : IBookService
     {
-        private readonly IBookRepository _bookRepository;
+        private readonly IBookRepository _repository;
         private readonly IMapper _mapper;
 
-        public BookService(IBookRepository bookRepository, IMapper mapper)
+        public BookService(IBookRepository repository, IMapper mapper)
         {
-            _bookRepository = bookRepository;
+            _repository = repository;
             _mapper = mapper;
         }
-        public async Task<List<BookViewDto>> GetAllBooksAsync()
+
+        public async Task<List<BookDto>> GetAllAsync()
         {
-            var book = await _bookRepository.GetAllBooksAsync();
-            return  _mapper.Map<List<BookViewDto>>(book);
+            var book =await _repository.GetAllBooksAsync();
+            return _mapper.Map<List<BookDto>>(book);
         }
 
-        public async Task<BookViewDto?> GetBookByIdAsync(int id)
+        public async  Task<BookDto?> GetByIdAsync(int id)
         {
-            var  book = await _bookRepository.GetBookByIdAsync(id);
-            return book == null ? null : _mapper.Map<BookViewDto>(book);
+           var book = await _repository.GetByIdAsync(id);
+            return book == null ? null :  _mapper.Map<BookDto>(book);
         }
-        public async Task AddBookAsync(BookViewDto bookViewDto)
+        public async Task<BookDto> AddBookAsync(CreateBookDto createBookDto)
         {
+
+            var book = _mapper.Map<Book>(createBookDto);
+            var created = await _repository.AddBookAsync(book);
+            return _mapper.Map<BookDto>(created);
+        } 
+
+        public async Task<BookDto?> UpdateBookAsync(int id, CreateBookDto createBookDto)
+        {
+            var book = _mapper.Map<Book>(createBookDto);
+            book.Id = id;
+            var updated = await _repository.UpdateBookAsync(book);
+            return updated == null  ? null : _mapper.Map<BookDto?>(updated);
             
-            var book = _mapper.Map<Book>(bookViewDto);
-            await _bookRepository.AddBookAsync(book);
-            await _bookRepository.SaveChangesAsync();
         }
 
-
-
-        public async Task<bool> UpdateBookAsync(BookViewDto bookViewDto)
+        public Task<bool> DeleteBookAsync(int id)
         {
-            var existingBook = await _bookRepository.GetBookByIdAsync(bookViewDto.Id);
-            if (existingBook == null)
-                return false;
-            _mapper.Map(bookViewDto, existingBook);
-
-            _bookRepository.UpdateBook(existingBook);
-            await _bookRepository.SaveChangesAsync();
-
-            return true;
+            return _repository.DeleteBookAsync(id); 
         }
-
-        public async Task<bool> DeleteBookAsync(int id)
-        {
-            var book = await _bookRepository.GetBookByIdAsync(id);
-            {
-                if (book == null) 
-                    return false;
-
-                _bookRepository.DeleteBook(book);
-                await _bookRepository.SaveChangesAsync();
-                return true;
-
-            }
-        }
-
     }
 }
