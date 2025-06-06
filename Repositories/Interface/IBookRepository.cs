@@ -1,17 +1,16 @@
-﻿using LibraryAPI.Models;
+﻿using LibraryAPI.DTOs.BookDTOs;
+using LibraryAPI.Models;
 
 namespace LibraryAPI.Repositories.Interface;
 
-   public interface IBookRepository
-    {
-        Task<List<Book>> GetAllBooksAsync();
-        Task<Book?> GetBookByIdAsync(int id);
-        Task AddBookAsync(Book book);
-       void UpdateBook(Book book); // doesn’t hit the database — it only updates the EF Core tracking state.
-    void DeleteBook(Book book);
-       Task SaveChangesAsync();
-
+public interface IBookRepository
+{
+    Task<List<Book>> GetAllBooksAsync();
+    Task<Book?> GetByIdAsync(int id);
+    Task<Book> AddBookAsync(Book book);
+    Task<Book?> UpdateBookAsync(Book book);
+    Task<bool> DeleteBookAsync(int id);
+   
 }
-
 
 
