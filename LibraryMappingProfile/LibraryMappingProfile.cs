@@ -24,7 +24,7 @@ namespace LibraryAPI.LibraryMappingProfile
 
             CreateMap<Loan, LoanViewDto>()
           .ForMember(dest => dest.BookTitle, opt => opt.MapFrom(src => src.Book.Title))
-          .ForMember(dest => dest.MemberName, opt => opt.MapFrom(src => src.Member.FullName));
+          .ForMember(dest => dest.MemberName, opt => opt.MapFrom(src => src.Member.UserId));
             CreateMap<LoanCreateDto, Loan>().ReverseMap();
             CreateMap<LoanUpdateDto, Loan>().ReverseMap();
 

@@ -1,6 +1,6 @@
 ﻿using LibraryAPI.Models;
 
-namespace LibraryAPI.Services.Interface
+namespace LibraryAPI.Services.AuthService.Register
 {
     public interface IJwtService
     {

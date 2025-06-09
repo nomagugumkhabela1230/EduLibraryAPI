@@ -1,4 +1,5 @@
 ﻿using LibraryAPI.Models;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace LibraryAPI.Models
@@ -12,7 +13,9 @@ namespace LibraryAPI.Models
 
         public int BookId { get; set; }
          public Book Book { get; set; }
-        public string MemberId { get; set; }
+
+        [ForeignKey("Member")]
+        public int MemberId { get; set; }
         public Member Member { get; set; }
 
         public DateTime IssueDate { get; set; } = DateTime.Now;

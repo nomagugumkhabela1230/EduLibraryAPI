@@ -1,7 +1,10 @@
 using LibraryAPI.Data;
 using LibraryAPI.Models;
+using LibraryAPI.Repositories.IdentityRepo;
 using LibraryAPI.Repositories.Implementation;
 using LibraryAPI.Repositories.Interface;
+using LibraryAPI.Services.AuthService;
+using LibraryAPI.Services.AuthService.Register;
 using LibraryAPI.Services.Implementation;
 using LibraryAPI.Services.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,13 +33,16 @@ builder.Services.AddScoped<IBookRepository, BookRepository>();
 /*builder.Services.AddScoped<IMemberRepository, MemberRepository>();
 builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 builder.Services.AddScoped<IFineRepository, FineRepository>();*/
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 // Register Services
 builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 /*builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<ILoanService, LoanService>();
 builder.Services.AddScoped<IFineService, FineService>();
-builder.Services.AddScoped<IJwtService, JwtService>();*/
+;*/
 
 // Add Controllers
 builder.Services.AddControllers();
