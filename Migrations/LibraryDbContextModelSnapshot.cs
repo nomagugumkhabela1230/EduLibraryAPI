@@ -45,6 +45,9 @@ namespace LibraryAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("JoinedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -170,11 +173,7 @@ namespace LibraryAPI.Migrations
                     b.Property<DateTime>("IssueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("MemberId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MemberId1")
+                    b.Property<int>("MemberId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("ReturnDate")
@@ -184,7 +183,7 @@ namespace LibraryAPI.Migrations
 
                     b.HasIndex("BookId");
 
-                    b.HasIndex("MemberId1");
+                    b.HasIndex("MemberId");
 
                     b.ToTable("Loans");
                 });
@@ -197,18 +196,20 @@ namespace LibraryAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("JoinedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("MembershipNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Members");
                 });
@@ -367,13 +368,24 @@ namespace LibraryAPI.Migrations
 
                     b.HasOne("LibraryAPI.Models.Member", "Member")
                         .WithMany("Loans")
-                        .HasForeignKey("MemberId1")
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Book");
 
                     b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("LibraryAPI.Models.Member", b =>
+                {
+                    b.HasOne("LibraryAPI.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

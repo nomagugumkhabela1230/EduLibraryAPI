@@ -1,11 +1,11 @@
 ﻿using LibraryAPI.Models;
-using LibraryAPI.Services.Interface;
+using LibraryAPI.Services.AuthService.Register;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace LibraryAPI.Services.Implementation
+namespace LibraryAPI.Services.AuthService
 {
     public class JwtService: IJwtService
     {
