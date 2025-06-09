@@ -3,8 +3,9 @@ using AutoMapper;
 using LibraryAPI.Services.Interface;
 using LibraryAPI.DTOs.BookDTOs;
 using LibraryAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
-namespace LibraryAPI.Controllers
+namespace LibraryAPI.Data
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -20,6 +21,7 @@ namespace LibraryAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous] 
         public async Task<ActionResult<List<BookDto>>> GetAll()
         {
             var books = await _bookService.GetAllAsync();
@@ -27,6 +29,7 @@ namespace LibraryAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<ActionResult<BookDto>> GetById(int id)
         {
             var book = await _bookService.GetByIdAsync(id);
@@ -38,7 +41,7 @@ namespace LibraryAPI.Controllers
 
 
         [HttpPost]
-
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<BookDto>> CreateBook([FromBody]CreateBookDto createBookDto)
         {
             var created = await _bookService.AddBookAsync(createBookDto);
@@ -47,6 +50,7 @@ namespace LibraryAPI.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, CreateBookDto createBookDto)
         {
             var updated = await _bookService.UpdateBookAsync(id, createBookDto);
@@ -56,6 +60,7 @@ namespace LibraryAPI.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _bookService.DeleteBookAsync(id);

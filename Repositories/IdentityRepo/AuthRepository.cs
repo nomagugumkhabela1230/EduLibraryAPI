@@ -13,18 +13,38 @@ public class AuthRepository : IAuthRepository
         _roleManager = roleManager;
     }
 
-    public async Task<ApplicationUser> FindByUsernameAsync(string username)
-        => await _userManager.FindByNameAsync(username);
+    public async Task<ApplicationUser?> FindByEmailAsync(string Email) // find user by Email
+    {
+        return await _userManager.FindByNameAsync(Email);
+    }
 
-    public async Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password)
-        => await _userManager.CreateAsync(user, password);
 
-    public async Task AddToRoleAsync(ApplicationUser user, string role)
-        => await _userManager.AddToRoleAsync(user, role);
+    public async Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password) //Create new user with password
+    {
+        return  await _userManager.CreateAsync(user, password);
+    }
 
-    public async Task<bool> RoleExistsAsync(string role)
-        => await _roleManager.RoleExistsAsync(role);
+    public async Task AddToRoleAsync(ApplicationUser user, string role) // Add user to role
+    {
+        await _userManager.AddToRoleAsync(user, role);
+    }
 
-    public async Task CreateRoleAsync(string role)
-        => await _roleManager.CreateAsync(new IdentityRole(role));
+    public async Task<bool> RoleExistsAsync(string role)   // Check if role exists
+    {
+        return await _roleManager.RoleExistsAsync(role);
+    }
+    public async Task CreateRoleAsync(string role) // Create new user with password
+    {
+        await _roleManager.CreateAsync(new IdentityRole(role));
+    }
+
+    public async Task<bool> CheckPasswordAsync(ApplicationUser user, string password)
+    {
+        return await _userManager.CheckPasswordAsync(user, password);
+    }
+
+    public async Task<IList<string>> GetRolesAsync(ApplicationUser user)
+    {
+        return await _userManager.GetRolesAsync(user);
+    }
 }

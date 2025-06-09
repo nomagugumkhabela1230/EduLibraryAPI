@@ -2,64 +2,73 @@
 using LibraryAPI.DTOs.AuthenticationDTOs;
 using LibraryAPI.Models;
 using LibraryAPI.Repositories.IdentityRepo;
+using Microsoft.AspNetCore.Identity;
 using System.Data;
 
 namespace LibraryAPI.Services.AuthService.Register
 {
     public class AuthService : IAuthService
     {
-        private readonly IAuthRepository _authRepo;
+        private readonly IAuthRepository _authRepository;
         private readonly IJwtService _jwtService;
-        
-        private readonly LibraryDbContext _context;
 
-        public AuthService(IAuthRepository authRepo, IJwtService jwtService, LibraryDbContext context)
+
+        public AuthService(IAuthRepository authRepository, IJwtService jwtService)
         {
-            _authRepo = authRepo;
+            _authRepository = authRepository;
             _jwtService = jwtService;
-            _context = context;
-        }
-        public async Task<string> RegisterAsync(RegisterDto registerDto)
-        {
-            var existingUser = await _authRepo.FindByUsernameAsync(registerDto.UserName);
-            if (existingUser != null)
-                return "User already exists";
 
-            var user = new ApplicationUser
+        }
+
+
+
+        public async Task<IdentityResult> RegisterAsync(RegisterDto registerDto)
+        {
+            var existingUser = await _authRepository.FindByEmailAsync(registerDto.Email);
+            if (existingUser != null)
             {
-                UserName = registerDto.UserName,
+                var errorResult = IdentityResult.Failed(new IdentityError
+                {
+                    Description = "Email is already taken."
+                });
+                return errorResult;
+            }
+
+            var newUser = new ApplicationUser
+            {
+                UserName = registerDto.Username,
                 Email = registerDto.Email,
-                JoinedDate = DateTime.Now,
+                FullName = registerDto.FullName,
+                JoinedDate = DateTime.UtcNow,
+
 
             };
-            var result = await _authRepo.CreateUserAsync(user, registerDto.Password);
+
+            var result = await _authRepository.CreateUserAsync(newUser, registerDto.Password);
+
             if (result.Succeeded)
-                return string.Join(",", result.Errors.Select(e => e.Description));
-
-            if (!await _authRepo.RoleExistsAsync(registerDto.Role))
-                await _authRepo.CreateRoleAsync(registerDto.Role);
-
-            await _authRepo.AddToRoleAsync(user, registerDto.Role);
-
-
-            var rolesForMembers = new List<string> { "Admin", "Student", "Librarian", };
-
-            if (rolesForMembers.Contains(registerDto.Role, StringComparer.OrdinalIgnoreCase))
             {
-                var member = new Member
+                if (!await _authRepository.RoleExistsAsync(registerDto.Role))
                 {
-                    UserId = user.Id,
-                    JoinedDate = DateTime.UtcNow,
-                    MembershipNumber = Guid.NewGuid().ToString().Substring(0, 8)
-                };
+                    await _authRepository.CreateRoleAsync(registerDto.Role);
+                }
 
-                _context.Members.Add(member);
-                await _context.SaveChangesAsync();
+                await _authRepository.AddToRoleAsync(newUser, registerDto.Role);
             }
-            return "user registerd successfuly happy reading";
 
-        
+            return result;
+        }
+        // Login
+        public async Task<string?> LoginAsync(LoginDto dto)
+        {
+            var user  = await _authRepository.FindByEmailAsync(dto.Email);
+            if (user == null || !await _authRepository.CheckPasswordAsync(user, dto.Password))
+                return null;
+
+            var roles = await _authRepository.GetRolesAsync(user); //roles are needed to embed into the JWT token
+            return _jwtService.GenerateToken(user, roles);
 
         }
+
     }
 }
