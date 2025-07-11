@@ -1,90 +1,57 @@
+﻿using DotNetEnv;
 using LibraryAPI.Data;
-using LibraryAPI.Models;
-using LibraryAPI.Repositories.IdentityRepo;
-using LibraryAPI.Repositories.Implementation;
-using LibraryAPI.Repositories.Interface;
-using LibraryAPI.Services.AuthService;
-using LibraryAPI.Services.AuthService.Register;
-using LibraryAPI.Services.Implementation;
-using LibraryAPI.Services.Interface;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add DbContext
-builder.Services.AddDbContext<LibraryDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("EduLibraryConnection")));
+// Load environment variables
+Env.Load();
 
-// Add Identity
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<LibraryDbContext>()
-    .AddDefaultTokenProviders();
+var connectionString = Environment.GetEnvironmentVariable("EduLibraryConnection");
+var authority = Environment.GetEnvironmentVariable("Jwt__Authority");
+var audience = Environment.GetEnvironmentVariable("Jwt__Audience");
 
-// Add AutoMapper
-builder.Services.AddAutoMapper(typeof(Program));
 
-// Register Repositories
-builder.Services.AddScoped<IBookRepository, BookRepository>();
-/*builder.Services.AddScoped<IMemberRepository, MemberRepository>();
-builder.Services.AddScoped<ILoanRepository, LoanRepository>();
-builder.Services.AddScoped<IFineRepository, FineRepository>();*/
-builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
-// Register Services
-builder.Services.AddScoped<IBookService, BookService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IJwtService, JwtService>();
-/*builder.Services.AddScoped<IMemberService, MemberService>();
-builder.Services.AddScoped<ILoanService, LoanService>();
-builder.Services.AddScoped<IFineService, FineService>();
-;*/
-
-// Add Controllers
+// Add services
 builder.Services.AddControllers();
-
-// Add Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<LibraryDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// Repository & Service Registrations
+
+
+
+
+
+// Authentication & Authorization
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        Title = "Library Management API",
-        Version = "v1"
+        options.Authority = authority;
+        options.Audience = audience;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidAudience = audience
+        };
     });
-});
 
 
-// JWT Authentication
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+builder.Services.AddAuthorization();
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = jwtSettings["Issuer"],
-        ValidAudience = jwtSettings["Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(key)
-    };
-});
-
+// Build the app
 var app = builder.Build();
 
-// Middleware
+// Middleware pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -93,7 +60,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(options =>
+    options.WithOrigins("http://localhost:4200")
+           .AllowAnyMethod()
+           .AllowAnyHeader());
+
+//app.UseMiddleware<ErrorHandlerMiddleware>();
+
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();
