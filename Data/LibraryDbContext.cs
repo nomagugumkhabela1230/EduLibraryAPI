@@ -1,52 +1,42 @@
 ﻿
-using LibraryAPI.Models;
+using LibraryAPI.Domain.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 
 namespace LibraryAPI.Data
 {
-    public class LibraryDbContext : IdentityDbContext<ApplicationUser>
+    public class LibraryDbContext : DbContext
     {
-        public LibraryDbContext(DbContextOptions<LibraryDbContext> options) : base(options) {}
-        
+        public LibraryDbContext(DbContextOptions<LibraryDbContext>options):base(options) { }
 
-        public DbSet<Book> Books { get; set; }
+
         public DbSet<Member> Members { get; set; }
+        public DbSet<Book> Books { get; set; }
         public DbSet<Loan> Loans { get; set; }
-        public DbSet<Fine> Fines { get; set; }
+        public DbSet<FinePolicy> FinePolicies { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<Book>()
-                .Property(b => b.AvailableCopies)
-                .HasDefaultValue(0);
 
             modelBuilder.Entity<Loan>()
-        .HasOne(l => l.Member)
-        .WithMany(m => m.Loans)
-        .HasForeignKey(l => l.MemberId);
-
-            modelBuilder.Entity<Member>()
-           .HasOne(m => m.User)
-           .WithMany()
-           .HasForeignKey(m => m.UserId);
+           .HasOne(l => l.Member)
+           .WithMany(m => m.Loans)
+           .HasForeignKey(l => l.MemberId);
 
             modelBuilder.Entity<Loan>()
-                .HasOne(l => l.Fine)
-                .WithOne(f => f.Loan)
-                .HasForeignKey<Fine>(f => f.LoanId);
-
-         modelBuilder.Entity<Fine>()
-        .Property(f => f.Amount)
-        .HasColumnType("decimal(18,2)");
+           .HasOne(l => l.Book)
+           .WithMany(b => b.Loans)
+           .HasForeignKey(l => l.BookId);
 
 
-        
-
-
+            modelBuilder.Entity<FinePolicy>().HasData(new FinePolicy
+            {
+                Id = 1,
+                DailyFine = 5,
+                MaxFinePerLoan = 100
+            });
         }
 
     }
