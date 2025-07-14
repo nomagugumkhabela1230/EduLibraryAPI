@@ -1,4 +1,5 @@
 ﻿using LibraryAPI.Domain.DTOs.MemberDTOs;
+using LibraryAPI.Domain.Models;
 using LibraryAPI.Repository.MemberRepo;
 using System.Security.Claims;
 
@@ -14,19 +15,24 @@ namespace LibraryAPI.Services.MemberService
             _memberRepo = memberRepo;
             _mapper = mapper;
         }
-        public async  Task<MapToDto> GetorCreateMemberFromTokenClaimsAsync(ClaimsPrincipal user)
+
+        public async Task GetorCreateMemberFromTokenClaimsAsync(string MicrosoftId, string Email, string FullNme)
         {
-            var oid = user.FindFirst("oid")?.Value;
-            var email = user.FindFirst("preferred_username")?.Value?? user.FindFirst("email")?.Value;
-            var name = user.FindFirst("name")?.Value;
+            var ExistingMember = await _memberRepo.GetByMicrosoftIdAsync( MicrosoftId );
 
-            if (string.IsNullOrEmpty(oid) || string.IsNullOrEmpty(email))
-                throw new UnauthorizedAccessException("Missing required claims.");
+            if (ExistingMember != null)
+            {
+                throw new InvalidOperationException("Member already exists.");
+            }
 
-            var existing = await _memberRepo.GetByMicrosoftIdAsync(oid);
-
-         
-            
+            var newMember = new Member
+            {
+                MicrosoftId = MicrosoftId,
+                Email = Email,
+                FullName = FullNme
+            };
+            await _memberRepo.AddAsync( newMember );
         }
     }
-}
+    }
+
