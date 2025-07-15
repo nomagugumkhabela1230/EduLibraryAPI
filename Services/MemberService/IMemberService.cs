@@ -5,6 +5,7 @@ namespace LibraryAPI.Services.MemberService
 {
     public interface IMemberService
     {
-        Task<MapToDto> GetorCreateMemberFromTokenClaimsAsync(ClaimsPrincipal user);
-    }
+        Task GetorCreateMemberFromTokenClaimsAsync(string MicrosoftId,string Email,string FullNme);
+    
+  }
 }

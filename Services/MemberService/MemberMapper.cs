@@ -7,9 +7,9 @@ namespace LibraryAPI.Services.MemberService
 {
     public class MemberMapper
     {
-        public MapToDto ToDto(Member member)
+        public MemberDto ToDto(Member member)
         {
-            return new MapToDto
+            return new MemberDto
             {
                 MemberId = member.Id,
                 MicrosoftId = member.MicrosoftId,
@@ -18,7 +18,7 @@ namespace LibraryAPI.Services.MemberService
             };
         }
 
-        public Member ToEntity(MapToDto memberDto)
+        public Member ToEntity(MemberDto memberDto)
         {
             return new Member
             {

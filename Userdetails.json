@@ -6,7 +6,6 @@
     "role": "Admin",
     "gender": "Male",
     "age": 51
-
   },
   {
     "email": "teacher1_f_age36@gmail.com",
@@ -15,7 +14,6 @@
     "role": "Teacher",
     "gender": "Female",
     "age": 34
-
   },
 
   {
@@ -28,10 +26,6 @@
     "LibraryId": 40
   },
 
-
-
-
-
   {
     "email": "student1_f_age21@gmail.com",
     "password": "student1_f_age21",
@@ -40,8 +34,6 @@
     "gender": "Female",
     "age": 21,
     "LibraryID": "21"
-
-
   },
   {
     "email": "student2_m_age21@gmail.com",
@@ -50,7 +42,6 @@
     "role": "Student",
     "gender": "Male",
     "age": 21
-
   },
   {
     "email": "student3_m_age9@gmail.com",
@@ -70,8 +61,8 @@
   },
 
   {
-    "username": "validUsername123", // Example username
-    "email": "valid.email@example.com", // Example email
+    "username": "validUsername123",
+    "email": "valid.email@example.com",
     "fullName": "",
     "gender": "Male",
     "age": 25,

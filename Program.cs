@@ -1,8 +1,11 @@
 ﻿using DotNetEnv;
 using LibraryAPI.Data;
+using LibraryAPI.Repository.MemberRepo;
+using LibraryAPI.Services.MemberService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,7 +29,9 @@ builder.Services.AddDbContext<LibraryDbContext>(options =>
 
 // Repository & Service Registrations
 
-
+builder.Services.AddScoped<IMemberRepo,MemberRepository>();
+builder.Services.AddScoped<IMemberService, MemberService>();    
+builder.Services.AddScoped<MemberMapper>();
 
 
 
@@ -44,6 +49,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = audience
         };
     });
+
 
 
 builder.Services.AddAuthorization();

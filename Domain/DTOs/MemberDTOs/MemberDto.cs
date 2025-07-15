@@ -1,6 +1,6 @@
 ﻿namespace LibraryAPI.Domain.DTOs.MemberDTOs
 {
-    public class MapToDto
+    public class MemberDto
     {
         public int MemberId { get; set; }
         public string MicrosoftId { get; set; } = string.Empty;
